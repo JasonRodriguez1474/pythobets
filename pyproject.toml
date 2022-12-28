@@ -5,6 +5,7 @@ build-backend = "flit_core.buildapi"
 [project]
 name = "pythobets"
 authors = [{name = "Jason Rodriguez", email = "jasonrodriguez1474@gmail.com"}]
+readme = "README.md"
 license = {file = "LICENSE"}
 classifiers = ["License :: OSI Approved :: MIT License"]
 dynamic = ["version", "description"]
