@@ -98,8 +98,7 @@ def update_betmaker_odds(api_key):
         odds_json = odds_response.json()
         json_odds = json.dumps(odds_json, indent=4)
         with open (os.path.join(USER_DATA_PATH, 'odds.json'), 'w') as json_odds:
-            json_odds.write(json_odds)
-            
+            json.dump(odds_json, json_odds )   
         # Check the usage quota
         print('Remaining requests', odds_response.headers['x-requests-remaining'])
         print('Used requests', odds_response.headers['x-requests-used'])
