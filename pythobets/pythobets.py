@@ -4,10 +4,13 @@ import os
 import os.path
 from io import BytesIO
 import configparser
-import json
+import json, csv
+from datetime import datetime
 
 USER_DATA_PATH = os.path.join(os.getenv("HOME"), ".pythobets")
 USER_CONFIG_PATH = os.path.join(USER_DATA_PATH, 'config.ini')
+JSON_ODDS = os.path.join(USER_DATA_PATH, 'odds.json')
+
 
 def update_predictions(sports='all'):
     print("Updating Predictions")
@@ -31,10 +34,11 @@ def update_predictions(sports='all'):
 
 def initiate_config():
     config = configparser.ConfigParser()
-    config['DEFAULT']= {'Sports': 'All'}
-    config['the-odds-api.com'] = {'api-key':''}
-    with open (USER_CONFIG_PATH, 'w') as config_file:
+    config['DEFAULT'] = {'Sports': 'All'}
+    config['the-odds-api.com'] = {'api-key': ''}
+    with open(USER_CONFIG_PATH, 'w') as config_file:
         config.write(config_file)
+
 
 def update_betmaker_odds(api_key):
     SPORT = 'upcoming'  # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
@@ -69,7 +73,6 @@ def update_betmaker_odds(api_key):
     else:
         print('List of in season sports:', sports_response.json())
 
-
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     #
     # Now get a list of live & upcoming games for the sport you want, along with odds for different bookmakers
@@ -96,13 +99,42 @@ def update_betmaker_odds(api_key):
 
     else:
         odds_json = odds_response.json()
-        json_odds = json.dumps(odds_json, indent=4)
-        with open (os.path.join(USER_DATA_PATH, 'odds.json'), 'w') as json_odds:
-            json.dump(odds_json, json_odds )   
+        with open(JSON_ODDS, 'w') as json_odds:
+            json.dump(odds_json, json_odds)
         # Check the usage quota
-        print('Remaining requests', odds_response.headers['x-requests-remaining'])
+        print('Remaining requests',
+              odds_response.headers['x-requests-remaining'])
         print('Used requests', odds_response.headers['x-requests-used'])
 
+
+def load_odds():
+    json_odds = open(JSON_ODDS)
+    odds_data = json.load(json_odds)
+    print(odds_data)
+
+
+def load_predictions():
+    SOCCER_ODDS = os.path.join(
+        USER_DATA_PATH, 'soccer-spi', 'spi_matches_latest.csv')
+    with open(SOCCER_ODDS, newline='') as csvfile:
+        prediction_reader = csv.reader(csvfile, delimiter=',')
+        for row in prediction_reader:
+            # print(row[1])
+            # print(datetime.today().date())
+            # print(type(row[1]))
+            # date = parser.parse(row[1], )
+            # print(date)
+            # print(datetime.strptime(row[1].strip(), "%Y-%m-%d").date())
+            # print(datetime.today().date())
+            # try:
+            #     if datetime.today().date() == datetime.strptime(row[1], "%Y-%m-%d"):
+            #         print(datetime.strptime(row[1], "%Y-%m-d"))
+            # except:
+            #     continue
+
+            # if datetime.today().date() == datetime.strptime(row[1], "%Y-%m-%d"):
+            #     print('success')
+            print(row[1])
 
 
 def main():
@@ -118,7 +150,10 @@ def main():
     # Begins reading config file
     config = configparser.ConfigParser()
     config.read(USER_CONFIG_PATH)
-    update_betmaker_odds(config['the-odds-api.com']['api-key'])
+    # Commenting out the below to not use up my API calls
+    # update_betmaker_odds(config['the-odds-api.com']['api-key'])
+    # load_odds()
+    load_predictions()
 
 
 if __name__ == "__main__":
