@@ -4,8 +4,10 @@ import os
 import os.path
 from io import BytesIO
 import configparser
-import json, csv
+import json
+import csv
 from datetime import datetime
+# TODO implement argparse
 
 USER_DATA_PATH = os.path.join(os.getenv("HOME"), ".pythobets")
 USER_CONFIG_PATH = os.path.join(USER_DATA_PATH, 'config.ini')
@@ -40,8 +42,9 @@ def initiate_config():
         config.write(config_file)
 
 
-def update_betmaker_odds(api_key):
-    SPORT = 'upcoming'  # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
+def update_betmaker_odds(api_key, sports = ''):
+    # TODO the idea here is that if the sports variable isn't passed, it should default to upcoming 
+    SPORT = 'upcoming' or sports  # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
 
     REGIONS = 'us'  # uk | us | eu | au. Multiple can be specified if comma delimited
 
@@ -114,27 +117,19 @@ def load_odds():
 
 
 def load_predictions():
+    daily_predictions = []
     SOCCER_ODDS = os.path.join(
         USER_DATA_PATH, 'soccer-spi', 'spi_matches_latest.csv')
     with open(SOCCER_ODDS, newline='') as csvfile:
         prediction_reader = csv.reader(csvfile, delimiter=',')
         for row in prediction_reader:
-            # print(row[1])
-            # print(datetime.today().date())
-            # print(type(row[1]))
-            # date = parser.parse(row[1], )
-            # print(date)
-            # print(datetime.strptime(row[1].strip(), "%Y-%m-%d").date())
-            # print(datetime.today().date())
-            # try:
-            #     if datetime.today().date() == datetime.strptime(row[1], "%Y-%m-%d"):
-            #         print(datetime.strptime(row[1], "%Y-%m-d"))
-            # except:
-            #     continue
-
-            # if datetime.today().date() == datetime.strptime(row[1], "%Y-%m-%d"):
-            #     print('success')
-            print(row[1])
+            if datetime.today().strftime("%Y-%m-%d") == row[1]:
+                daily_predictions.append(
+                    {'Date': row[1], 'League': row[3],
+                        'Home': row[4], 'Away': row[5], 'Home_Win_Prob': float(row[8]), 'Away_Win_Prob': float(row[9]),
+                        'Draw_Prob': float(row[10]), 'Projected_Score': f"{round(float(row[11]))}:{round(float(row[12]))}"}
+                )
+        return (daily_predictions)
 
 
 def main():
