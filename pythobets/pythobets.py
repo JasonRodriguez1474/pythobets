@@ -42,9 +42,10 @@ def initiate_config():
         config.write(config_file)
 
 
-def update_betmaker_odds(api_key, sports = ''):
-    # TODO the idea here is that if the sports variable isn't passed, it should default to upcoming 
-    SPORT = 'upcoming' or sports  # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
+def update_betmaker_odds(api_key, sports=''):
+    # TODO the idea here is that if the sports variable isn't passed, it should default to upcoming
+    # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
+    SPORT = 'upcoming' or sports
 
     REGIONS = 'us'  # uk | us | eu | au. Multiple can be specified if comma delimited
 
