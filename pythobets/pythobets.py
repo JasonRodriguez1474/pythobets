@@ -42,7 +42,6 @@ def initiate_config():
 
 def update_betmaker_odds(api_key):
     SPORT = 'upcoming'  # use the sport_key from the /sports endpoint below, or use 'upcoming' to see the next 8 games across all sports
-
     REGIONS = 'us'  # uk | us | eu | au. Multiple can be specified if comma delimited
 
     # h2h | spreads | totals. Multiple can be specified if comma delimited
@@ -71,7 +70,18 @@ def update_betmaker_odds(api_key):
             f'Failed to get sports: status_code {sports_response.status_code}, response body {sports_response.text}')
 
     else:
+        # TODO make this versatile for any sport group the user selects
         print('List of in season sports:', sports_response.json())
+        sports_keys = []
+        for item in sports_response.json():
+            if item["group"] == "Soccer":
+                sports_keys.append(item["key"])
+                # item["key"].append(sports_keys)
+        # Due to likely 31 API calls being used per league
+        # Users should be able to obtain 4 days of bets per application use
+        # Otherwise free tier API limits will be exceeded
+        print(sports_keys)
+        # print(sports_response.json()[0])
 
     # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # # #
     #
@@ -110,7 +120,10 @@ def update_betmaker_odds(api_key):
 def load_odds():
     json_odds = open(JSON_ODDS)
     odds_data = json.load(json_odds)
-    print(odds_data)
+    for item in odds_data:
+        # print(type(item))
+        print(item["commence_time"])
+    # print(odds_data)
 
 
 def load_predictions():
@@ -151,9 +164,9 @@ def main():
     config = configparser.ConfigParser()
     config.read(USER_CONFIG_PATH)
     # Commenting out the below to not use up my API calls
-    # update_betmaker_odds(config['the-odds-api.com']['api-key'])
+    update_betmaker_odds(config['the-odds-api.com']['api-key'])
     # load_odds()
-    load_predictions()
+    # load_predictions()
 
 
 if __name__ == "__main__":
